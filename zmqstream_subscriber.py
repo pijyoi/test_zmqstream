@@ -15,7 +15,7 @@ class TcpSubscriber:
 		zctx = zmq.Context.instance()
 		zsock = zctx.socket(zmq.STREAM)
 		zsock.connect(endpoint)
-		myid = zsock.getsockopt(zmq.IDENTITY)
+		peerid = zsock.getsockopt(zmq.IDENTITY)
 
 		io_loop = ioloop.IOLoop.instance()
 		io_loop.add_handler(zsock, self.handle_read, io_loop.READ)
@@ -26,8 +26,7 @@ class TcpSubscriber:
 		self.accum_buffer = bytearray()
 
 	def handle_read(self, zsock, events):
-		msgid = zsock.recv()
-		payload = zsock.recv()
+		peerid, payload = zsock.recv_multipart()
 
 		if not payload:
 			if not self.connected:
