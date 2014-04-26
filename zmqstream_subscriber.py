@@ -16,6 +16,7 @@ class TcpSubscriber:
 		zsock = zctx.socket(zmq.STREAM)
 		zsock.connect(endpoint)
 		peerid = zsock.getsockopt(zmq.IDENTITY)
+		self.zsock = zsock
 
 		io_loop = ioloop.IOLoop.instance()
 		io_loop.add_handler(zsock, self.handle_read, io_loop.READ)
@@ -30,10 +31,10 @@ class TcpSubscriber:
 
 		if not payload:
 			if not self.connected:
-				self.handle_connect()
+				self.handle_connect(peerid)
 				self.connected = True
 			else:
-				self.handle_disconnect()
+				self.handle_disconnect(peerid)
 				self.connected = False
 			return
 
@@ -50,12 +51,11 @@ class TcpSubscriber:
 				self.packet_size = self.hdrfmt.size
 				self.handle_msg(pkt)
 
-	def handle_connect(self):
-		print 'connect'
-		pass
+	def handle_connect(self, peerid):
+		print 'connected to {0!r}'.format(peerid)
 
-	def handle_disconnect(self):
-		print 'disconnect'
+	def handle_disconnect(self, peerid):
+		print 'disconnected from {0!r}'.format(peerid)
 		self.reset()
 
 	def handle_msg(self, msg):
