@@ -7,8 +7,9 @@ class TcpSubscriber:
 	hdrfmt = struct.Struct('>I')
 
 	def __init__(self, endpoint):
-		self.connect(endpoint)
 		self.reset()
+		self.connected = False
+		self.connect(endpoint)
 
 	def connect(self, endpoint):
 		zctx = zmq.Context.instance()
@@ -27,11 +28,17 @@ class TcpSubscriber:
 	def handle_read(self, zsock, events):
 		msgid = zsock.recv()
 		payload = zsock.recv()
-		if payload:
-			self.accum_buffer.extend(payload)			
-		else:		
-			print "empty message!"
-			self.reset()
+
+		if not payload:
+			if not self.connected:
+				self.handle_connect()
+				self.connected = True
+			else:
+				self.handle_disconnect()
+				self.connected = False
+			return
+
+		self.accum_buffer.extend(payload)
 
 		while len(self.accum_buffer) >= self.packet_size:
 			pkt = buffer(self.accum_buffer, 0, self.packet_size)
@@ -43,6 +50,14 @@ class TcpSubscriber:
 				self.wait_hdr = True
 				self.packet_size = self.hdrfmt.size
 				self.handle_msg(pkt)
+
+	def handle_connect(self):
+		print 'connect'
+		pass
+
+	def handle_disconnect(self):
+		print 'disconnect'
+		self.reset()
 
 	def handle_msg(self, msg):
 		print 'msgsize: {0}'.format(len(msg))
