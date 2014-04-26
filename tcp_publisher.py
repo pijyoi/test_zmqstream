@@ -22,6 +22,8 @@ while 1:
 	struct.pack_into('>I', msg, 0, payload_size)	# 4-byte header
 	struct.pack_into('I', msg, 4, idx)
 
+	idx += 1
+
 	for sock in clients:
 		do_close = False
 		hiccup = random.randint(1, 20)==1		# 1 in 20 chance
@@ -37,9 +39,8 @@ while 1:
 		except socket.error:
 			do_close = True
 
-		if (do_close):
+		if do_close:
 			sock.close()
 			clients.remove(sock)
 
-	idx += 1
 
