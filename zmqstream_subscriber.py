@@ -43,8 +43,8 @@ class TcpSubscriber:
         self.accum_buffer.extend(payload)
 
         while len(self.accum_buffer) >= self.packet_size:
-            pkt = buffer(self.accum_buffer, 0, self.packet_size)
-            self.accum_buffer = bytearray(self.accum_buffer[self.packet_size:])
+            pkt = memoryview(self.accum_buffer)[:self.packet_size]
+            self.accum_buffer = self.accum_buffer[self.packet_size:]
             if self.wait_hdr:
                 self.wait_hdr = False
                 self.packet_size = self.hdrfmt.unpack(pkt)[0]

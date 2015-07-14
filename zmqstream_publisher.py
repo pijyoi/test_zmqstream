@@ -42,7 +42,7 @@ def timer_data():
         if hiccup:
             # simulate send of partial message before disconnection
             partial_size = random.randint(1, len(msg))
-            msg = buffer(msg, 0, partial_size)
+            msg = memoryview(msg)[:partial_size]
             do_close = True
 
         zsock.send(clientid, zmq.SNDMORE)
@@ -50,7 +50,7 @@ def timer_data():
 
         if do_close:
             zsock.send(clientid, zmq.SNDMORE)
-            zsock.send('', zmq.SNDMORE)
+            zsock.send(b'', zmq.SNDMORE)
             clients.remove(clientid)
 
 

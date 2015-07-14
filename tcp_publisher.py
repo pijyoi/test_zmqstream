@@ -31,7 +31,7 @@ while 1:
         if hiccup:
             # simulate send of partial message before disconnection
             partial_size = random.randint(1, len(msg))
-            msg = buffer(msg, 0, partial_size)
+            msg = memoryview(msg)[:partial_size]
             do_close = True
 
         try:
