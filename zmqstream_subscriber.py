@@ -16,6 +16,10 @@ class TcpSubscriber:
     def connect(self, endpoint):
         zctx = zmq.Context.instance()
         zsock = zctx.socket(zmq.STREAM)
+        try:
+            zsock.setsockopt(zmq.STREAM_NOTIFY, 1)  # libzmq 4.2.0
+        except AttributeError:
+            pass
         zsock.connect(endpoint)
         peerid = zsock.getsockopt(zmq.IDENTITY)
         self.zsock = zsock

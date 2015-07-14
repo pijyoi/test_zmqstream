@@ -8,6 +8,10 @@ from zmq.eventloop import ioloop
 
 zctx = zmq.Context.instance()
 zsock = zctx.socket(zmq.STREAM)
+try:
+    zsock.setsockopt(zmq.STREAM_NOTIFY, 1)  # libzmq 4.2.0
+except AttributeError:
+    pass
 zsock.bind('tcp://127.0.0.1:10000')
 
 idx = 0
