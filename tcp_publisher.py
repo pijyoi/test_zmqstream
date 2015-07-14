@@ -12,35 +12,35 @@ clients = []
 
 idx = 0
 while 1:
-	r, w, e = select.select([server], [], [], 0.2)
-	if r:
-		sock, addr = server.accept()
-		clients.append(sock)
+    r, w, e = select.select([server], [], [], 0.2)
+    if r:
+        sock, addr = server.accept()
+        clients.append(sock)
 
-	payload_size = random.randint(4, 10000)	
-	msg = bytearray(4 + payload_size)
-	struct.pack_into('>I', msg, 0, payload_size)	# 4-byte header
-	struct.pack_into('I', msg, 4, idx)
+    payload_size = random.randint(4, 10000)
+    msg = bytearray(4 + payload_size)
+    struct.pack_into('>I', msg, 0, payload_size)    # 4-byte header
+    struct.pack_into('I', msg, 4, idx)
 
-	idx += 1
+    idx += 1
 
-	for sock in clients:
-		do_close = False
-		hiccup = random.randint(1, 20)==1		# 1 in 20 chance
+    for sock in clients:
+        do_close = False
+        hiccup = random.randint(1, 20)==1       # 1 in 20 chance
 
-		if hiccup:
-			# simulate send of partial message before disconnection
-			partial_size = random.randint(1, len(msg))
-			msg = buffer(msg, 0, partial_size)
-			do_close = True
+        if hiccup:
+            # simulate send of partial message before disconnection
+            partial_size = random.randint(1, len(msg))
+            msg = buffer(msg, 0, partial_size)
+            do_close = True
 
-		try:
-			sock.sendall(msg)
-		except socket.error:
-			do_close = True
+        try:
+            sock.sendall(msg)
+        except socket.error:
+            do_close = True
 
-		if do_close:
-			sock.close()
-			clients.remove(sock)
+        if do_close:
+            sock.close()
+            clients.remove(sock)
 
 
