@@ -5,6 +5,12 @@ import struct
 import zmq
 from zmq.eventloop import ioloop
 
+def setsockopt_stream_notify(zsock, val):
+    if zmq.zmq_version_info() >= (4,2,0):
+        if not hasattr(zmq, 'STREAM_NOTIFY'):
+            zmq.STREAM_NOTIFY = 73
+        zsock.setsockopt(zmq.STREAM_NOTIFY, val)
+
 class TcpSubscriber:
     hdrfmt = struct.Struct('>I')
 
@@ -16,10 +22,7 @@ class TcpSubscriber:
     def connect(self, endpoint):
         zctx = zmq.Context.instance()
         zsock = zctx.socket(zmq.STREAM)
-        try:
-            zsock.setsockopt(zmq.STREAM_NOTIFY, 1)  # libzmq 4.2.0
-        except AttributeError:
-            pass
+        setsockopt_stream_notify(zsock, 1)
         zsock.connect(endpoint)
         peerid = zsock.getsockopt(zmq.IDENTITY)
         self.zsock = zsock
