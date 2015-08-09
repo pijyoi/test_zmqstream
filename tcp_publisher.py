@@ -18,20 +18,22 @@ while 1:
         clients.append(sock)
 
     payload_size = random.randint(4, 10000)
-    msg = bytearray(4 + payload_size)
-    struct.pack_into('>I', msg, 0, payload_size)    # 4-byte header
-    struct.pack_into('I', msg, 4, idx)
+    fullmsg = bytearray(4 + payload_size)
+    struct.pack_into('>I', fullmsg, 0, payload_size)    # 4-byte header
+    struct.pack_into('I', fullmsg, 4, idx)
 
     idx += 1
 
+    remove_list = []
     for sock in clients:
         do_close = False
         hiccup = random.randint(1, 20)==1       # 1 in 20 chance
 
+        msg = memoryview(fullmsg)
         if hiccup:
             # simulate send of partial message before disconnection
             partial_size = random.randint(1, len(msg))
-            msg = memoryview(msg)[:partial_size]
+            msg = msg[:partial_size]
             do_close = True
 
         try:
@@ -41,6 +43,9 @@ while 1:
 
         if do_close:
             sock.close()
-            clients.remove(sock)
+            remove_list.append(sock)
+
+    for sock in remove_list:
+        clients.remove(sock)
 
 
