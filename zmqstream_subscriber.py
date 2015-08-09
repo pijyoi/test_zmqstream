@@ -22,7 +22,7 @@ class TcpSubscriber:
     def connect(self, endpoint):
         zctx = zmq.Context.instance()
         zsock = zctx.socket(zmq.STREAM)
-        setsockopt_stream_notify(zsock, 1)
+        #setsockopt_stream_notify(zsock, 1)
         zsock.connect(endpoint)
         peerid = zsock.getsockopt(zmq.IDENTITY)
         self.zsock = zsock

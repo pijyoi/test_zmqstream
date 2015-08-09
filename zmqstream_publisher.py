@@ -14,7 +14,7 @@ def setsockopt_stream_notify(zsock, val):
 
 zctx = zmq.Context.instance()
 zsock = zctx.socket(zmq.STREAM)
-setsockopt_stream_notify(zsock, 1)
+#setsockopt_stream_notify(zsock, 1)
 zsock.bind('tcp://127.0.0.1:10000')
 
 idx = 0
