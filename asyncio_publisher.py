@@ -6,8 +6,6 @@ clients = {}
 
 @asyncio.coroutine
 def publish_stuff():
-    yield from asyncio.start_server(client_connected, '127.0.0.1', 10000)
-
     idx = 0
     while True:
         payload_size = random.randint(4, 10000)
@@ -55,6 +53,17 @@ def client_connected(reader, writer):
     writer.close()
 
 loop = asyncio.get_event_loop()
-loop.run_until_complete(publish_stuff())
-loop.run_forever()
+
+coro = asyncio.start_server(client_connected, '127.0.0.1', 10000)
+server = loop.run_until_complete(coro)
+asyncio.async(publish_stuff())
+
+try:
+    loop.run_forever()
+except KeyboardInterrupt:
+    pass
+
+server.close()
+loop.run_until_complete(server.wait_closed())
+loop.close()
 
