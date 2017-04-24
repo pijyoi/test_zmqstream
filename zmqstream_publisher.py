@@ -52,12 +52,10 @@ def timer_data():
             msg = memoryview(msg)[:partial_size]
             do_close = True
 
-        zsock.send(clientid, zmq.SNDMORE)
-        zsock.send(msg, zmq.SNDMORE)
+        zsock.send_multipart([clientid, msg])
 
         if do_close:
-            zsock.send(clientid, zmq.SNDMORE)
-            zsock.send(b'', zmq.SNDMORE)
+            zsock.send_multipart([clientid, b''])
             clients.remove(clientid)
 
 
